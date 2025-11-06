@@ -968,6 +968,41 @@ describe('InitCommand', () => {
       expect(archiveContent).toContain('openspec archive <id> --yes');
     });
 
+    it('should create Catpaw slash command files with templates', async () => {
+      queueSelections('catpaw', DONE);
+
+      await initCommand.execute(testDir);
+
+      const catpawProposal = path.join(
+        testDir,
+        '.catpaw/commands/openspec-proposal.md'
+      );
+      const catpawApply = path.join(
+        testDir,
+        '.catpaw/commands/openspec-apply.md'
+      );
+      const catpawArchive = path.join(
+        testDir,
+        '.catpaw/commands/openspec-archive.md'
+      );
+
+      expect(await fileExists(catpawProposal)).toBe(true);
+      expect(await fileExists(catpawApply)).toBe(true);
+      expect(await fileExists(catpawArchive)).toBe(true);
+
+      const proposalContent = await fs.readFile(catpawProposal, 'utf-8');
+      expect(proposalContent).toContain('name: /openspec-proposal');
+      expect(proposalContent).toContain('<!-- OPENSPEC:END -->');
+
+      const applyContent = await fs.readFile(catpawApply, 'utf-8');
+      expect(applyContent).toContain('id: openspec-apply');
+      expect(applyContent).toContain('Work through tasks sequentially');
+
+      const archiveContent = await fs.readFile(catpawArchive, 'utf-8');
+      expect(archiveContent).toContain('name: /openspec-archive');
+      expect(archiveContent).toContain('openspec list --specs');
+    });
+
     it('should mark CodeBuddy as already configured during extend mode', async () => {
       queueSelections('codebuddy', DONE, 'codebuddy', DONE);
       await initCommand.execute(testDir);

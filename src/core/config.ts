@@ -18,6 +18,7 @@ export interface AIToolOption {
 
 export const AI_TOOLS: AIToolOption[] = [
   { name: 'Auggie (Augment CLI)', value: 'auggie', available: true, successLabel: 'Auggie' },
+  { name: 'Catpaw', value: 'catpaw', available: true, successLabel: 'Catpaw' },
   { name: 'Claude Code', value: 'claude', available: true, successLabel: 'Claude Code' },
   { name: 'Cline', value: 'cline', available: true, successLabel: 'Cline' },
   { name: 'CodeBuddy Code (CLI)', value: 'codebuddy', available: true, successLabel: 'CodeBuddy Code' },
