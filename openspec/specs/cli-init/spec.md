@@ -76,6 +76,12 @@ The command SHALL properly configure selected AI tools with OpenSpec-specific in
 - **THEN** create or update `CLINE.md` in the project root directory (not inside openspec/)
 - **AND** populate the managed block with a short stub that points teammates to `@/openspec/AGENTS.md`
 
+#### Scenario: Configuring iFlow CLI
+
+- **WHEN** iFlow CLI is selected
+- **THEN** create or update `IFLOW.md` in the project root directory (not inside openspec/)
+- **AND** populate the managed block with a short stub that points teammates to `@/openspec/AGENTS.md`
+
 #### Scenario: Creating new CLAUDE.md
 
 - **WHEN** CLAUDE.md does not exist
@@ -117,6 +123,12 @@ The command SHALL provide clear, actionable next steps upon successful initializ
 #### Scenario: Displaying success message
 - **WHEN** initialization completes successfully
 - **THEN** include prompt: "Please explain the OpenSpec workflow from openspec/AGENTS.md and how I should work with you on this project"
+
+#### Scenario: Displaying restart instruction
+- **WHEN** initialization completes successfully and tools were created or refreshed
+- **THEN** display a prominent restart instruction before the "Next steps" section
+- **AND** inform users that slash commands are loaded at startup
+- **AND** instruct users to restart their coding assistant to ensure /openspec commands appear
 
 ### Requirement: Exit Codes
 
@@ -229,6 +241,29 @@ The init command SHALL generate slash command files for supported editors using 
 - **AND** populate each file with YAML frontmatter containing a `description` field that summarizes the workflow stage
 - **AND** include `$ARGUMENTS` placeholder to capture user input
 - **AND** wrap the shared template body with OpenSpec markers so `openspec update` can refresh the content
+- **AND** each template includes instructions for the relevant OpenSpec workflow stage
+
+#### Scenario: Generating slash commands for Gemini CLI
+- **WHEN** the user selects Gemini CLI during initialization
+- **THEN** create `.gemini/commands/openspec/proposal.toml`, `.gemini/commands/openspec/apply.toml`, and `.gemini/commands/openspec/archive.toml`
+- **AND** populate each file as TOML that sets a stage-specific `description = "<summary>"` and a multi-line `prompt = """` block with the shared OpenSpec template
+- **AND** wrap the OpenSpec managed markers (`<!-- OPENSPEC:START -->` / `<!-- OPENSPEC:END -->`) inside the `prompt` value so `openspec update` can safely refresh the body between markers without touching the TOML framing
+- **AND** ensure the slash-command copy matches the existing proposal/apply/archive templates used by other tools
+
+#### Scenario: Generating slash commands for iFlow CLI
+- **WHEN** the user selects iFlow CLI during initialization
+- **THEN** create `.iflow/commands/openspec-proposal.md`, `.iflow/commands/openspec-apply.md`, and `.iflow/commands/openspec-archive.md`
+- **AND** populate each file from shared templates so command text matches other tools
+- **AND** include YAML frontmatter with `name`, `id`, `category`, and `description` fields for each command
+- **AND** wrap the generated content in OpenSpec managed markers so `openspec update` can safely refresh the commands
+- **AND** each template includes instructions for the relevant OpenSpec workflow stage
+
+#### Scenario: Generating slash commands for RooCode
+- **WHEN** the user selects RooCode during initialization
+- **THEN** create `.roo/commands/openspec-proposal.md`, `.roo/commands/openspec-apply.md`, and `.roo/commands/openspec-archive.md`
+- **AND** populate each file from shared templates so command text matches other tools
+- **AND** include simple Markdown headings (e.g., `# OpenSpec: Proposal`) without YAML frontmatter
+- **AND** wrap the generated content in OpenSpec managed markers where applicable so `openspec update` can safely refresh the commands
 - **AND** each template includes instructions for the relevant OpenSpec workflow stage
 
 ### Requirement: Non-Interactive Mode

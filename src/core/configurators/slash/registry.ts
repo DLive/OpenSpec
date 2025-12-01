@@ -10,12 +10,16 @@ import { CodexSlashCommandConfigurator } from './codex.js';
 import { GitHubCopilotSlashCommandConfigurator } from './github-copilot.js';
 import { AmazonQSlashCommandConfigurator } from './amazon-q.js';
 import { FactorySlashCommandConfigurator } from './factory.js';
+import { GeminiSlashCommandConfigurator } from './gemini.js';
 import { AuggieSlashCommandConfigurator } from './auggie.js';
 import { ClineSlashCommandConfigurator } from './cline.js';
 import { CrushSlashCommandConfigurator } from './crush.js';
 import { CostrictSlashCommandConfigurator } from './costrict.js';
 import { QwenSlashCommandConfigurator } from './qwen.js';
 import { CatpawSlashCommandConfigurator } from './catpaw.js';
+import { RooCodeSlashCommandConfigurator } from './roocode.js';
+import { AntigravitySlashCommandConfigurator } from './antigravity.js';
+import { IflowSlashCommandConfigurator } from './iflow.js';
 
 export class SlashCommandRegistry {
   private static configurators: Map<string, SlashCommandConfigurator> = new Map();
@@ -32,12 +36,16 @@ export class SlashCommandRegistry {
     const githubCopilot = new GitHubCopilotSlashCommandConfigurator();
     const amazonQ = new AmazonQSlashCommandConfigurator();
     const factory = new FactorySlashCommandConfigurator();
+    const gemini = new GeminiSlashCommandConfigurator();
     const auggie = new AuggieSlashCommandConfigurator();
     const cline = new ClineSlashCommandConfigurator();
     const crush = new CrushSlashCommandConfigurator();
     const costrict = new CostrictSlashCommandConfigurator();
     const qwen = new QwenSlashCommandConfigurator();
     const catpaw = new CatpawSlashCommandConfigurator();
+    const roocode = new RooCodeSlashCommandConfigurator();
+    const antigravity = new AntigravitySlashCommandConfigurator();
+    const iflow = new IflowSlashCommandConfigurator();
 
     this.configurators.set(claude.toolId, claude);
     this.configurators.set(codeBuddy.toolId, codeBuddy);
@@ -50,12 +58,16 @@ export class SlashCommandRegistry {
     this.configurators.set(githubCopilot.toolId, githubCopilot);
     this.configurators.set(amazonQ.toolId, amazonQ);
     this.configurators.set(factory.toolId, factory);
+    this.configurators.set(gemini.toolId, gemini);
     this.configurators.set(auggie.toolId, auggie);
     this.configurators.set(cline.toolId, cline);
     this.configurators.set(crush.toolId, crush);
     this.configurators.set(costrict.toolId, costrict);
     this.configurators.set(qwen.toolId, qwen);
     this.configurators.set(catpaw.toolId, catpaw);
+    this.configurators.set(roocode.toolId, roocode);
+    this.configurators.set(antigravity.toolId, antigravity);
+    this.configurators.set(iflow.toolId, iflow);
   }
 
   static register(configurator: SlashCommandConfigurator): void {

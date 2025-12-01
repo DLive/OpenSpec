@@ -152,19 +152,17 @@ Old slash content
   it('should refresh existing Qwen slash command files', async () => {
     const applyPath = path.join(
       testDir,
-      '.qwen/commands/openspec-apply.md'
+      '.qwen/commands/openspec-apply.toml'
     );
     await fs.mkdir(path.dirname(applyPath), { recursive: true });
-    const initialContent = `---
-name: /openspec-apply
-id: openspec-apply
-category: OpenSpec
-description: Old description
----
+    const initialContent = `description = "Implement an approved OpenSpec change and keep tasks in sync."
 
+prompt = """
 <!-- OPENSPEC:START -->
 Old body
-<!-- OPENSPEC:END -->`;
+<!-- OPENSPEC:END -->
+"""
+`;
     await fs.writeFile(applyPath, initialContent);
 
     const consoleSpy = vi.spyOn(console, 'log');
@@ -172,8 +170,8 @@ Old body
     await updateCommand.execute(testDir);
 
     const updated = await fs.readFile(applyPath, 'utf-8');
-    expect(updated).toContain('name: /openspec-apply');
-    expect(updated).toContain('category: OpenSpec');
+    expect(updated).toContain('description = "Implement an approved OpenSpec change and keep tasks in sync."');
+    expect(updated).toContain('prompt = """');
     expect(updated).toContain('<!-- OPENSPEC:START -->');
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
@@ -184,7 +182,7 @@ Old body
     );
     expect(logMessage).toContain('AGENTS.md (created)');
     expect(logMessage).toContain(
-      'Updated slash commands: .qwen/commands/openspec-apply.md'
+      'Updated slash commands: .qwen/commands/openspec-apply.toml'
     );
 
     consoleSpy.mockRestore();
@@ -193,22 +191,20 @@ Old body
   it('should not create missing Qwen slash command files on update', async () => {
     const applyPath = path.join(
       testDir,
-      '.qwen/commands/openspec-apply.md'
+      '.qwen/commands/openspec-apply.toml'
     );
 
     await fs.mkdir(path.dirname(applyPath), { recursive: true });
     await fs.writeFile(
       applyPath,
-      `---
-name: /openspec-apply
-id: openspec-apply
-category: OpenSpec
-description: Old description
----
+      `description = "Old description"
 
+prompt = """
 <!-- OPENSPEC:START -->
 Old content
-<!-- OPENSPEC:END -->`
+<!-- OPENSPEC:END -->
+"""
+`
     );
 
     await updateCommand.execute(testDir);
@@ -219,11 +215,11 @@ Old content
 
     const proposalPath = path.join(
       testDir,
-      '.qwen/commands/openspec-proposal.md'
+      '.qwen/commands/openspec-proposal.toml'
     );
     const archivePath = path.join(
       testDir,
-      '.qwen/commands/openspec-archive.md'
+      '.qwen/commands/openspec-archive.toml'
     );
 
     await expect(FileSystemUtils.fileExists(proposalPath)).resolves.toBe(false);
@@ -298,10 +294,10 @@ More rules after.`;
     expect(fileExists).toBe(false);
   });
 
-  it('should refresh existing Cline rule files', async () => {
+  it('should refresh existing Cline workflow files', async () => {
     const proposalPath = path.join(
       testDir,
-      '.clinerules/openspec-proposal.md'
+      '.clinerules/workflows/openspec-proposal.md'
     );
     await fs.mkdir(path.dirname(proposalPath), { recursive: true });
     const initialContent = `# OpenSpec: Proposal
@@ -331,7 +327,7 @@ Old slash content
     );
     expect(logMessage).toContain('AGENTS.md (created)');
     expect(logMessage).toContain(
-      'Updated slash commands: .clinerules/openspec-proposal.md'
+      'Updated slash commands: .clinerules/workflows/openspec-proposal.md'
     );
 
     consoleSpy.mockRestore();
@@ -467,6 +463,38 @@ Old body
     consoleSpy.mockRestore();
   });
 
+  it('should refresh existing Antigravity workflows', async () => {
+    const agPath = path.join(
+      testDir,
+      '.agent/workflows/openspec-apply.md'
+    );
+    await fs.mkdir(path.dirname(agPath), { recursive: true });
+    const initialContent = `---
+description: Implement an approved OpenSpec change and keep tasks in sync.
+---
+
+<!-- OPENSPEC:START -->
+Old body
+<!-- OPENSPEC:END -->`;
+    await fs.writeFile(agPath, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updated = await fs.readFile(agPath, 'utf-8');
+    expect(updated).toContain('Work through tasks sequentially');
+    expect(updated).not.toContain('Old body');
+    expect(updated).toContain('description: Implement an approved OpenSpec change and keep tasks in sync.');
+    expect(updated).not.toContain('auto_execution_mode: 3');
+
+    const [logMessage] = consoleSpy.mock.calls[0];
+    expect(logMessage).toContain(
+      'Updated slash commands: .agent/workflows/openspec-apply.md'
+    );
+    consoleSpy.mockRestore();
+  });
+
   it('should refresh existing Codex prompts', async () => {
     const codexPath = path.join(
       testDir,
@@ -586,6 +614,101 @@ Old body
     // Confirm they weren't created by update
     await expect(FileSystemUtils.fileExists(ghProposal)).resolves.toBe(false);
     await expect(FileSystemUtils.fileExists(ghArchive)).resolves.toBe(false);
+  });
+
+  it('should refresh existing Gemini CLI TOML files without creating new ones', async () => {
+    const geminiProposal = path.join(
+      testDir,
+      '.gemini/commands/openspec/proposal.toml'
+    );
+    await fs.mkdir(path.dirname(geminiProposal), { recursive: true });
+    const initialContent = `description = "Scaffold a new OpenSpec change and validate strictly."
+
+prompt = """
+<!-- OPENSPEC:START -->
+Old Gemini body
+<!-- OPENSPEC:END -->
+"""
+`;
+    await fs.writeFile(geminiProposal, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updated = await fs.readFile(geminiProposal, 'utf-8');
+    expect(updated).toContain('description = "Scaffold a new OpenSpec change and validate strictly."');
+    expect(updated).toContain('prompt = """');
+    expect(updated).toContain('<!-- OPENSPEC:START -->');
+    expect(updated).toContain('**Guardrails**');
+    expect(updated).toContain('<!-- OPENSPEC:END -->');
+    expect(updated).not.toContain('Old Gemini body');
+
+    const geminiApply = path.join(
+      testDir,
+      '.gemini/commands/openspec/apply.toml'
+    );
+    const geminiArchive = path.join(
+      testDir,
+      '.gemini/commands/openspec/archive.toml'
+    );
+
+    await expect(FileSystemUtils.fileExists(geminiApply)).resolves.toBe(false);
+    await expect(FileSystemUtils.fileExists(geminiArchive)).resolves.toBe(false);
+
+    const [logMessage] = consoleSpy.mock.calls[0];
+    expect(logMessage).toContain(
+      'Updated slash commands: .gemini/commands/openspec/proposal.toml'
+    );
+
+    consoleSpy.mockRestore();
+  });
+  
+  it('should refresh existing IFLOW slash commands', async () => {
+    const iflowProposal = path.join(
+      testDir,
+      '.iflow/commands/openspec-proposal.md'
+    );
+    await fs.mkdir(path.dirname(iflowProposal), { recursive: true });
+    const initialContent = `description: Scaffold a new OpenSpec change and validate strictly."
+
+prompt = """
+<!-- OPENSPEC:START -->
+Old IFlow body
+<!-- OPENSPEC:END -->
+"""
+`;
+    await fs.writeFile(iflowProposal, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updated = await fs.readFile(iflowProposal, 'utf-8');
+    expect(updated).toContain('description: Scaffold a new OpenSpec change and validate strictly.');
+    expect(updated).toContain('<!-- OPENSPEC:START -->');
+    expect(updated).toContain('**Guardrails**');
+    expect(updated).toContain('<!-- OPENSPEC:END -->');
+    expect(updated).not.toContain('Old IFlow body');
+
+    const iflowApply = path.join(
+      testDir,
+      '.iflow/commands/openspec-apply.md'
+    );
+    const iflowArchive = path.join(
+      testDir,
+      '.iflow/commands/openspec-archive.md'
+    );
+
+    await expect(FileSystemUtils.fileExists(iflowApply)).resolves.toBe(false);
+    await expect(FileSystemUtils.fileExists(iflowArchive)).resolves.toBe(false);
+
+    const [logMessage] = consoleSpy.mock.calls[0];
+    expect(logMessage).toContain(
+      'Updated slash commands: .iflow/commands/openspec-proposal.md'
+    );
+
+    consoleSpy.mockRestore();
   });
 
   it('should refresh existing Factory slash commands', async () => {
@@ -1023,6 +1146,79 @@ Old slash content
     consoleSpy.mockRestore();
   });
 
+  it('should refresh existing RooCode slash command files', async () => {
+    const rooPath = path.join(
+      testDir,
+      '.roo/commands/openspec-proposal.md'
+    );
+    await fs.mkdir(path.dirname(rooPath), { recursive: true });
+    const initialContent = `# OpenSpec: Proposal
+
+Old description
+
+<!-- OPENSPEC:START -->
+Old body
+<!-- OPENSPEC:END -->`;
+    await fs.writeFile(rooPath, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updated = await fs.readFile(rooPath, 'utf-8');
+    // For RooCode, the header is Markdown, preserve it and update only managed block
+    expect(updated).toContain('# OpenSpec: Proposal');
+    expect(updated).toContain('**Guardrails**');
+    expect(updated).toContain(
+      'Validate with `openspec validate <id> --strict`'
+    );
+    expect(updated).not.toContain('Old body');
+
+    const [logMessage] = consoleSpy.mock.calls[0];
+    expect(logMessage).toContain(
+      'Updated OpenSpec instructions (openspec/AGENTS.md'
+    );
+    expect(logMessage).toContain('AGENTS.md (created)');
+    expect(logMessage).toContain(
+      'Updated slash commands: .roo/commands/openspec-proposal.md'
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should not create missing RooCode slash command files on update', async () => {
+    const rooApply = path.join(
+      testDir,
+      '.roo/commands/openspec-apply.md'
+    );
+
+    // Only create apply; leave proposal and archive missing
+    await fs.mkdir(path.dirname(rooApply), { recursive: true });
+    await fs.writeFile(
+      rooApply,
+      `# OpenSpec: Apply
+
+<!-- OPENSPEC:START -->
+Old body
+<!-- OPENSPEC:END -->`
+    );
+
+    await updateCommand.execute(testDir);
+
+    const rooProposal = path.join(
+      testDir,
+      '.roo/commands/openspec-proposal.md'
+    );
+    const rooArchive = path.join(
+      testDir,
+      '.roo/commands/openspec-archive.md'
+    );
+
+    // Confirm they weren't created by update
+    await expect(FileSystemUtils.fileExists(rooProposal)).resolves.toBe(false);
+    await expect(FileSystemUtils.fileExists(rooArchive)).resolves.toBe(false);
+  });
+
   it('should not create missing CoStrict slash command files on update', async () => {
     const costrictApply = path.join(
       testDir,
@@ -1132,6 +1328,7 @@ More instructions after.`;
     expect(logMessage).toContain('Updated AI tool files: COSTRICT.md');
     consoleSpy.mockRestore();
   });
+
 
   it('should not create COSTRICT.md if it does not exist', async () => {
     // Ensure COSTRICT.md does not exist
