@@ -492,21 +492,21 @@ describe('InitCommand', () => {
       expect(await fileExists(openCodeArchive)).toBe(true);
 
       const proposalContent = await fs.readFile(openCodeProposal, 'utf-8');
-      expect(proposalContent).toContain('agent: build');
+      expect(proposalContent).not.toContain('agent:');
       expect(proposalContent).toContain(
         'description: Scaffold a new OpenSpec change and validate strictly.'
       );
       expect(proposalContent).toContain('<!-- OPENSPEC:START -->');
 
       const applyContent = await fs.readFile(openCodeApply, 'utf-8');
-      expect(applyContent).toContain('agent: build');
+      expect(applyContent).not.toContain('agent:');
       expect(applyContent).toContain(
         'description: Implement an approved OpenSpec change and keep tasks in sync.'
       );
       expect(applyContent).toContain('Work through tasks sequentially');
 
       const archiveContent = await fs.readFile(openCodeArchive, 'utf-8');
-      expect(archiveContent).toContain('agent: build');
+      expect(archiveContent).not.toContain('agent:');
       expect(archiveContent).toContain(
         'description: Archive a deployed OpenSpec change and update specs.'
       );
@@ -1137,41 +1137,6 @@ describe('InitCommand', () => {
       expect(archiveContent).toContain('name: OpenSpec: Archive');
       expect(archiveContent).toContain('description: Archive a deployed OpenSpec change and update specs.');
       expect(archiveContent).toContain('openspec archive <id> --yes');
-    });
-
-    it('should create Catpaw slash command files with templates', async () => {
-      queueSelections('catpaw', DONE);
-
-      await initCommand.execute(testDir);
-
-      const catpawProposal = path.join(
-        testDir,
-        '.catpaw/commands/openspec-proposal.md'
-      );
-      const catpawApply = path.join(
-        testDir,
-        '.catpaw/commands/openspec-apply.md'
-      );
-      const catpawArchive = path.join(
-        testDir,
-        '.catpaw/commands/openspec-archive.md'
-      );
-
-      expect(await fileExists(catpawProposal)).toBe(true);
-      expect(await fileExists(catpawApply)).toBe(true);
-      expect(await fileExists(catpawArchive)).toBe(true);
-
-      const proposalContent = await fs.readFile(catpawProposal, 'utf-8');
-      expect(proposalContent).toContain('name: /openspec-proposal');
-      expect(proposalContent).toContain('<!-- OPENSPEC:END -->');
-
-      const applyContent = await fs.readFile(catpawApply, 'utf-8');
-      expect(applyContent).toContain('id: openspec-apply');
-      expect(applyContent).toContain('Work through tasks sequentially');
-
-      const archiveContent = await fs.readFile(catpawArchive, 'utf-8');
-      expect(archiveContent).toContain('name: /openspec-archive');
-      expect(archiveContent).toContain('openspec list --specs');
     });
 
     it('should mark CodeBuddy as already configured during extend mode', async () => {

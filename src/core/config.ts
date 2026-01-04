@@ -20,7 +20,6 @@ export const AI_TOOLS: AIToolOption[] = [
   { name: 'Amazon Q Developer', value: 'amazon-q', available: true, successLabel: 'Amazon Q Developer' },
   { name: 'Antigravity', value: 'antigravity', available: true, successLabel: 'Antigravity' },
   { name: 'Auggie (Augment CLI)', value: 'auggie', available: true, successLabel: 'Auggie' },
-  { name: 'Catpaw', value: 'catpaw', available: true, successLabel: 'Catpaw' },
   { name: 'Claude Code', value: 'claude', available: true, successLabel: 'Claude Code' },
   { name: 'Cline', value: 'cline', available: true, successLabel: 'Cline' },
   { name: 'Codex', value: 'codex', available: true, successLabel: 'Codex' },
